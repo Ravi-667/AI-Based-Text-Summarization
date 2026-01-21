@@ -105,6 +105,18 @@ metrics = evaluate_summary(summary, original_text)
 print(metrics)
 ```
 
+### 📋 Recommended Input Guidelines
+
+**Input Lengths:**
+- **Minimum:** 1 sentence (will work but may not summarize)
+- **Optimal:** 5+ sentences for best summarization
+- **Maximum:** No hard limit (chunking handles long documents)
+
+**Which Method to Choose:**
+- **Extractive:** Best for factual accuracy, preserves original wording
+- **Abstractive:** Best for brevity, generates new phrasing
+- **Both:** Compare and choose the better summary
+
 ## 📊 How It Works
 
 ### Extractive Summarization (BERT-based)
