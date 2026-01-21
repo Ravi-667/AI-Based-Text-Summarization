@@ -3,6 +3,8 @@
 ![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
+![Tests](https://github.com/Ravi-667/AI-Based-Text-Summarization/workflows/CI%2FCD%20Pipeline/badge.svg)
+![Coverage](https://img.shields.io/badge/coverage-check_CI-blue)
 
 An intelligent text summarization system using state-of-the-art Natural Language Processing (NLP) techniques. This project implements both **extractive** and **abstractive** summarization methods to condense long documents such as news articles, research papers, and other text-heavy content.
 
