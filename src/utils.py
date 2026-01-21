@@ -256,3 +256,155 @@ Compression: {compression_ratio:.1f}%
 {'=' * 80}
 """
     return output
+
+
+def validate_text_input(
+    text: str,
+    min_words: int = 1,
+    max_words: int = 50000,
+    min_sentences: int = 1
+) -> tuple[bool, Optional[str]]:
+    """
+    Validate text input for summarization.
+    
+    Args:
+        text: Input text to validate
+        min_words: Minimum word count
+        max_words: Maximum word count
+        min_sentences: Minimum sentence count
+        
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    from src.exceptions import EmptyTextError, TextTooShortError, TextTooLongError
+    
+    # Check if empty
+    if not text or not text.strip():
+        return False, "Input text is empty or contains only whitespace"
+    
+    # Get stats
+    stats = get_text_stats(text)
+    
+    # Check minimum words
+    if stats['word_count'] < min_words:
+        return False, f"Text too short: {stats['word_count']} words (minimum: {min_words})"
+    
+    # Check maximum words
+    if stats['word_count'] > max_words:
+        return False, f"Text too long: {stats['word_count']} words (maximum: {max_words})"
+    
+    # Check minimum sentences
+    if stats['sentence_count'] < min_sentences:
+        return False, f"Too few sentences: {stats['sentence_count']} (minimum: {min_sentences})"
+    
+    return True, None
+
+
+def validate_file_path(file_path: str) -> tuple[bool, Optional[str]]:
+    """
+    Validate file path for summarization.
+    
+    Args:
+        file_path: Path to file
+        
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    from pathlib import Path
+    
+    path = Path(file_path)
+    
+    # Check if exists
+    if not path.exists():
+        return False, f"File not found: {file_path}"
+    
+    # Check if is file
+    if not path.is_file():
+        return False, f"Not a file: {file_path}"
+    
+    # Check extension
+    supported_extensions = ['.txt', '.pdf', '.docx']
+    if path.suffix.lower() not in supported_extensions:
+        return False, f"Unsupported format: {path.suffix}. Supported: {', '.join(supported_extensions)}"
+    
+    return True, None
+
+
+def validate_summarization_params(
+    method: str,
+    ratio: Optional[float] = None,
+    num_sentences: Optional[int] = None,
+    max_length: Optional[int] = None,
+    min_length: Optional[int] = None
+) -> tuple[bool, Optional[str]]:
+    """
+    Validate summarization parameters.
+    
+    Args:
+        method: Summarization method
+        ratio: Extraction ratio for extractive
+        num_sentences: Number of sentences for extractive
+        max_length: Maximum length for abstractive
+        min_length: Minimum length for abstractive
+        
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    # Validate method
+    valid_methods = ['extractive', 'abstractive', 'both']
+    if method not in valid_methods:
+        return False, f"Invalid method: {method}. Must be one of: {', '.join(valid_methods)}"
+    
+    # Validate extractive parameters
+    if method in ['extractive', 'both']:
+        if ratio is not None:
+            if not (0 < ratio <= 1):
+                return False, f"Invalid ratio: {ratio}. Must be between 0 and 1"
+        
+        if num_sentences is not None:
+            if num_sentences < 1:
+                return False, f"Invalid num_sentences: {num_sentences}. Must be positive"
+    
+    # Validate abstractive parameters
+    if method in ['abstractive', 'both']:
+        if max_length is not None and min_length is not None:
+            if min_length >= max_length:
+                return False, f"min_length ({min_length}) must be less than max_length ({max_length})"
+        
+        if max_length is not None and max_length < 10:
+            return False, f"max_length ({max_length}) too small. Must be at least 10"
+    
+    return True, None
+
+
+def safe_read_document(file_path: str) -> tuple[Optional[str], Optional[str]]:
+    """
+    Safely read document with error handling.
+    
+    Args:
+        file_path: Path to document
+        
+    Returns:
+        Tuple of (text_content, error_message)
+    """
+    from src.exceptions import FileReadError, FileFormatError
+    
+    try:
+        # Validate file path first
+        is_valid, error_msg = validate_file_path(file_path)
+        if not is_valid:
+            return None, error_msg
+        
+        # Try to read
+        text = read_document(file_path)
+        
+        # Validate content
+        is_valid, error_msg = validate_text_input(text, min_words=1, min_sentences=1)
+        if not is_valid:
+            return None, error_msg
+        
+        return text, None
+        
+    except Exception as e:
+        return None, f"Failed to read document: {str(e)}"
+
