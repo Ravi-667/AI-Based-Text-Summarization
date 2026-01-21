@@ -6,6 +6,7 @@ import argparse
 import sys
 import os
 from pathlib import Path
+from datetime import datetime
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent))
@@ -302,11 +303,60 @@ def main():
             logger.error(f"Error reading input file: {e}")
             sys.exit(1)
     
+    
     elif args.batch:
         logger.info(f"Batch processing directory: {args.batch}")
-        # TODO: Implement batch processing
-        logger.error("Batch processing not yet implemented")
-        sys.exit(1)
+        
+        try:
+            from src.batch_processor import BatchProcessor
+            
+            # Create batch processor
+            processor = BatchProcessor(
+                method=args.method,
+                device=args.device,
+                ratio=args.ratio if args.method in ['extractive', 'both'] else None,
+                num_sentences=args.num_sentences if args.method in ['extractive', 'both'] else None,
+                scoring=args.scoring if args.method in ['extractive', 'both'] else None,
+                max_length=args.max_length if args.method in ['abstractive', 'both'] else None,
+                min_length=args.min_length if args.method in ['abstractive', 'both'] else None
+            )
+            
+            # Determine output directory
+            if args.output:
+                output_dir = args.output
+            else:
+                output_dir = os.path.join(OUTPUT_DIR, f"batch_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
+            
+            # Process directory
+            batch_results = processor.process_directory(
+                directory=args.batch,
+                output_dir=output_dir,
+                recursive=True,
+                save_summaries=True
+            )
+            
+            # Print summary
+            processor.print_batch_summary(batch_results)
+            
+            # Save batch report
+            report_path = os.path.join(output_dir, 'batch_report.json')
+            processor.generate_batch_report(batch_results, report_path, format='json')
+            
+            # Also save CSV report
+            csv_path = os.path.join(output_dir, 'batch_report.csv')
+            processor.generate_batch_report(batch_results, csv_path, format='csv')
+            
+            print(f"✓ Summaries saved to: {output_dir}")
+            print(f"✓ Reports saved: batch_report.json, batch_report.csv")
+            
+            sys.exit(0)
+            
+        except Exception as e:
+            logger.error(f"Batch processing failed: {e}")
+            if args.verbose:
+                import traceback
+                traceback.print_exc()
+            sys.exit(1)
     
     else:
         logger.error("No input provided. Use --input, --text, or --batch")
