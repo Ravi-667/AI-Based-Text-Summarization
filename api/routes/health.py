@@ -12,6 +12,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 from api.schemas import HealthResponse, ModelInfoResponse
 from api import __version__
 from src.config import DEFAULT_EXTRACTIVE_MODEL, DEFAULT_ABSTRACTIVE_MODEL, DEVICE
+from src.model_manager import get_model_manager
 
 router = APIRouter()
 
@@ -23,10 +24,12 @@ async def health_check():
     
     Returns system health status and basic information.
     """
+    model_manager = get_model_manager()
+    
     return HealthResponse(
         status="healthy",
         timestamp=datetime.now().isoformat(),
-        models_loaded=False,  # Will be updated when model manager is implemented
+        models_loaded=model_manager.models_loaded,
         version=__version__
     )
 
@@ -38,9 +41,12 @@ async def get_model_info():
     
     Returns details about the models currently in use.
     """
+    model_manager = get_model_manager()
+    model_info = model_manager.get_model_info()
+    
     return ModelInfoResponse(
         extractive_model=DEFAULT_EXTRACTIVE_MODEL,
         abstractive_model=DEFAULT_ABSTRACTIVE_MODEL,
         device=DEVICE,
-        models_loaded=False  # Will be updated when model manager is implemented
+        models_loaded=model_info['models_loaded']
     )

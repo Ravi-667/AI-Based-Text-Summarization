@@ -2,7 +2,7 @@
 Summarization API endpoints
 """
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from datetime import datetime
 import sys
 import os
@@ -23,28 +23,20 @@ from src.extractive_summarizer import ExtractiveSummarizer
 from src.abstractive_summarizer import AbstractiveSummarizer
 from src.utils import get_text_stats
 from src.exceptions import SummarizationError
+from api.dependencies import get_models
+from src.model_manager import ModelManager
 
 router = APIRouter()
 
-# Model cache (will be replaced with proper singleton in optimization phase)
-_extractive_model = None
-_abstractive_model = None
+
+async def get_extractive_model(model_manager: ModelManager = Depends(get_models)):
+    """Get extractive model from manager."""
+    return model_manager.extractive_model
 
 
-def get_extractive_model():
-    """Get or create extractive model."""
-    global _extractive_model
-    if _extractive_model is None:
-        _extractive_model = ExtractiveSummarizer(device='cpu')
-    return _extractive_model
-
-
-def get_abstractive_model():
-    """Get or create abstractive model."""
-    global _abstractive_model
-    if _abstractive_model is None:
-        _abstractive_model = AbstractiveSummarizer(device='cpu')
-    return _abstractive_model
+async def get_abstractive_model(model_manager: ModelManager = Depends(get_models)):
+    """Get abstractive model from manager."""
+    return model_manager.abstractive_model
 
 
 @router.post("/summarize/extractive", response_model=SummarizationResponse)
