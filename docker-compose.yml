@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: text-summarization-api
+    ports:
+      - "8000:8000"
+    environment:
+      - DEVICE=cpu
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./models/cache:/app/models/cache
+      - ./data/outputs:/app/data/outputs
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - summarization-network
+
+networks:
+  summarization-network:
+    driver: bridge
