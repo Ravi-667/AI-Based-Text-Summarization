@@ -6,6 +6,20 @@
 ![Tests](https://github.com/Ravi-667/AI-Based-Text-Summarization/workflows/CI%2FCD%20Pipeline/badge.svg)
 ![Coverage](https://img.shields.io/badge/coverage-check_CI-blue)
 
+## 🌐 Live Demo
+
+**✨ Streamlit Web App:** [https://huggingface.co/spaces/Ravi-667/ai-text-summarization](https://huggingface.co/spaces/Ravi-667/ai-text-summarization)
+
+**🚀 API Endpoint:** [https://ai-based-text-summarization.onrender.com](https://ai-based-text-summarization.onrender.com)
+
+**📚 Interactive API Docs:** [https://ai-based-text-summarization.onrender.com/docs](https://ai-based-text-summarization.onrender.com/docs)
+
+**💚 Health Check:** [https://ai-based-text-summarization.onrender.com/api/v1/health](https://ai-based-text-summarization.onrender.com/api/v1/health)
+
+> **Note:** Hugging Face Space provides FREE GPU/CPU for ML models. Render API has limited RAM (512MB) so models may not load.
+
+---
+
 An intelligent text summarization system using state-of-the-art Natural Language Processing (NLP) techniques. This project implements both **extractive** and **abstractive** summarization methods to condense long documents such as news articles, research papers, and other text-heavy content.
 
 ## ✨ Features
