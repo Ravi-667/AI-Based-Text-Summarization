@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: quicksummary-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: DEVICE
+        value: cpu
+      - key: LOG_LEVEL
+        value: INFO
+      - key: PORT
+        value: 8000
+    autoDeploy: true
