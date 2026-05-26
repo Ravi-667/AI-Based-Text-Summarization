@@ -22,9 +22,13 @@ wheels/
 
 # Virtual Environment
 venv/
+.venv/
 env/
 ENV/
 summarizer_env/
+
+# Node
+node_modules/
 
 # PyTorch & Models
 *.pth
